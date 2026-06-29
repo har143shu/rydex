@@ -8,7 +8,7 @@ import AuthModal from "./AuthModal";
 function Navbar() {
   const Nav_Items = ["Home", "Bookings", "About Us", "Contact"];
   const pathName = usePathname();
-  const [authOpen,setAuthOpen] = useState(false);
+  const [authOpen, setAuthOpen] = useState(false);
   return (
     <>
       <motion.div
@@ -25,9 +25,8 @@ function Navbar() {
               if (i == "Home") {
                 href = "/";
               } else {
-                href = `/${i.toLowerCase()}`;
+                href = `/${i.toLowerCase().replace(/\s+/g, "-")}`;
               }
-
               const active = href == pathName;
 
               return (
@@ -43,13 +42,16 @@ function Navbar() {
               );
             })}
           </div>
-          <button onClick={()=>setAuthOpen(true)} className="px-4 py-2  bg-white text-black text-sm rounded-full cursor-pointer">
-            Login 
+          <button
+            onClick={() => setAuthOpen(true)}
+            className="px-4 py-2  bg-white text-black text-sm rounded-full cursor-pointer"
+          >
+            Login
           </button>
         </div>
       </motion.div>
 
-      <AuthModal open={authOpen} onClose={() =>setAuthOpen(false)} />
+      <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
     </>
   );
 }
