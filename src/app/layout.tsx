@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Provider from "@/lib/Provider";
+import ReactRedux from "@/redux/ReactRedux";
+import InitUser from "@/InitUser";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,7 +33,11 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <Provider>
+          <ReactRedux>
+            {/* init user ka kaam bs itna h ki agr user login h toh wo uska data store me store kar dega */}
+            <InitUser />
             {children}
+          </ReactRedux>
         </Provider>
       </body>
     </html>
