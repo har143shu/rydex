@@ -51,27 +51,31 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   ],
   callbacks: {
     async signIn({ user, account }) {
-    if (account?.provider === "google") {
-      await connectDB();
-      // Let use karo taaki hum isko baad mein update kar sakein
-      let dbUser = await User.findOne({ email: user.email });
-      
-      // Agar user nahi mila, toh create karo aur wapas dbUser mein assign kar do
-      if (!dbUser) {
-        dbUser = await User.create({
-          name: user.name,
-          email: user.email,
-          role: "user" // Default role bhi de dena chahiye
-        });
+      if (account?.provider === "google") {
+        await connectDB();
+        let dbUser = await User.findOne({ email: user.email });
+
+        // Agar user nahi mila, toh naya create karo aur isEmailVerified true kardo
+        if (!dbUser) {
+          dbUser = await User.create({
+            name: user.name,
+            email: user.email,
+            role: "user",
+            isUserVerified: true, // ✅ Directly verify it
+          });
+        } else if (!dbUser.isUserVerified) {
+          // Edge Case: Agar user database mein tha par verify nahi tha,
+          // aur usne ab Google se login kiya hai, toh usko verify kardo
+          dbUser.isUserVerified = true;
+          await dbUser.save();
+        }
+
+        user.id = dbUser._id.toString(); // .toString() kar lena safe rehta hai MongoDB ids ke liye
+        user.role = dbUser.role;
       }
 
-      // Ab error nahi aayega kyunki dbUser hamesha available hoga (chahe naya ho ya purana)
-      user.id = dbUser._id;
-      user.role = dbUser.role;
-    }
-
-    return true; // Login allow kardo
-  },
+      return true;
+    },
     // Step 1: Token banate waqt user ki details token me daalo
     async jwt({ token, user }) {
       // 'user' object sirf login ke time par explicitly available hota hai
