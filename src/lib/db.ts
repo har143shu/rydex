@@ -34,6 +34,9 @@ export async function connectDB() {
     cached.conn = await cached.promise;
     return cached.conn;
   } catch (error) {
-    console.log("Error occur while connecting to DB", error);
+    console.error("Error occur while connecting to DB", error);
+
+    cached.promise = null; //ye imp h agr fake promise store ho gya toh
+    throw error;// ye imp h
   }
 }

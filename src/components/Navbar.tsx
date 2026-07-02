@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import AuthModal from "./AuthModal";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/redux/store";
@@ -19,6 +19,7 @@ function Navbar() {
 
   const userData = useSelector((state: RootState) => state.user.userData);
   const dispatch = useDispatch<AppDispatch>();
+  const router = useRouter();
 
   async function handleLogOut(){
     await signOut({redirect:false});
@@ -106,10 +107,10 @@ function Navbar() {
 
                           {userData.role != "partner" && (
                             <div
-                              className="w-full flex items-center gap-3 py-3 hover:bg-gray-100 rounded-xl"
-                              // onClick={() =>
-                              // router.push("/partner/onboarding/vehicle")
-                              // }
+                              className="w-full flex items-center gap-3 py-3 hover:bg-gray-100 rounded-xl cursor-pointer"
+                              onClick={() =>
+                              router.push("/partner/onboarding/vehicle")
+                              }
                             >
                               <div className="flex -space-x-2">
                                 <div className="w-6 h-6 rounded-full bg-black text-white flex items-center justify-center">
@@ -251,7 +252,7 @@ function Navbar() {
                 {userData.role != "partner" && (
                   <div
                     className="w-full flex items-center gap-3 py-3 hover:bg-gray-100 rounded-xl"
-                    // onClick={() => router.push("/partner/onboarding/vehicle")}
+                    onClick={() => router.push("/partner/onboarding/vehicle")}
                   >
                     <div className="flex -space-x-2">
                       <div className="w-6 h-6 rounded-full bg-black text-white flex items-center justify-center">

@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
       );
     }
     // 4. Validation Checks
-    if (user.isEmailVerified) {
+    if (user.isUserVerified) {
       return NextResponse.json(
         { message: "Email is already verified" },
         { status: 400 },
@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: "OTP has expired" }, { status: 400 });
     }
     // 5. Update and Save
-    user.isEmailVerified = true;
+    user.isUserVerified = true;
     user.otp = undefined;
     user.otpExpiresAt = undefined;
 

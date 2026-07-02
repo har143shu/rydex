@@ -7,6 +7,8 @@ export interface IUser extends Document {
   password?: string;
   role: "user" | "partner" | "admin";
   isUserVerified?: boolean;
+  partnerOnBoardingSteps: number;
+  mobileNumber?: string;
   otp?: string;
   otpExpiresAt?: Date;
   createdAt: Date;
@@ -36,6 +38,15 @@ const userSchema = new Schema<IUser>(
     isUserVerified: {
       type: Boolean,
       default: false,
+    },
+    partnerOnBoardingSteps: {
+      type: Number,
+      min: 0,
+      max: 8,
+      default: 0,
+    },
+    mobileNumber: {
+      type: String,
     },
     otp: {
       type: String,
