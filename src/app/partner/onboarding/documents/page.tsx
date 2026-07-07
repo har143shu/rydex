@@ -59,6 +59,7 @@ function Page() {
     setDocs((prev) => ({ ...prev, [doc]: file }));
   };
 
+
   return (
     <div className="min-h-screen bg-white flex items-center justify-center px-4">
       <motion.div
@@ -93,12 +94,17 @@ function Page() {
               <p className="text-xs text-gray-500">Government issued ID</p>
             </div>
 
-            <div>
+            {docs.aadhar ? (
+              <span className="text-sm font-medium text-green-600">Uploaded</span>
+            ) : (
+              <div>
               <span className="text-xs text-gray-400">Upload</span>
               <div className="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center">
                 <UploadCloud size={18} />
               </div>
             </div>
+            )}
+            
 
             <input
               type="file"
@@ -119,12 +125,17 @@ function Page() {
               <p className="text-xs text-gray-500">Valid driving license</p>
             </div>
 
-            <div>
+            {docs.license ? (
+              <span className="text-sm font-medium text-green-600">Uploaded</span>
+            ) : (
+              <div>
               <span className="text-xs text-gray-400">Upload</span>
               <div className="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center">
                 <UploadCloud size={18} />
               </div>
             </div>
+            )}
+
             <input
               type="file"
               hidden
@@ -144,12 +155,16 @@ function Page() {
               <p className="text-xs text-gray-500">Registration Certificate</p>
             </div>
 
-            <div>
+             {docs.rc ? (
+              <span className="text-sm font-medium text-green-600">Uploaded</span>
+            ) : (
+              <div>
               <span className="text-xs text-gray-400">Upload</span>
               <div className="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center">
                 <UploadCloud size={18} />
               </div>
             </div>
+            )}
 
             <input
               type="file"

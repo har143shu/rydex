@@ -1,8 +1,16 @@
 "use client";
 import { motion } from "motion/react";
-import { ArrowLeft, Bike, Car, Loader2, Loader2Icon, Package, Truck } from "lucide-react";
+import {
+  ArrowLeft,
+  Bike,
+  Car,
+  Loader2,
+  Loader2Icon,
+  Package,
+  Truck,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 
 function Page() {
@@ -42,6 +50,20 @@ function Page() {
       setLoading(false);
     }
   }
+
+  useEffect(() => {
+    async function handleGetVehicle() {
+      try {
+        const { data } = await axios.get("/api/partner/onboarding/vehicle");
+        setVehicleType(data.data.type);
+        setVehicleNumber(data.data.number);
+        setVehicleModel(data.data.vehicleModel);
+      } catch (error: any) {
+        console.log(error);
+      }
+    }
+    handleGetVehicle();
+  }, []);
   return (
     <div className="min-h-screen bg-white flex justify-center items-center px-4">
       {/*div jo animated ho*/}

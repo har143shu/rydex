@@ -188,7 +188,7 @@ export async function GET() {
       );
     }
     return NextResponse.json(
-      { message: "Bank details fetched", data: partnerBank },
+      { message: "Bank details fetched", data: partnerBank,mobileNumber:user.mobileNumber },
       { status: 200 },
     );
   } catch (error) {

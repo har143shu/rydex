@@ -7,7 +7,7 @@ import { usePathname, useRouter } from "next/navigation";
 import AuthModal from "./AuthModal";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/redux/store";
-import { Bike, Car, ChevronRight,LogOut, Menu, Truck, X } from "lucide-react";
+import { Bike, Car, ChevronRight, LogOut, Menu, Truck, X } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { setUserData } from "@/redux/userSlice";
 function Navbar() {
@@ -15,18 +15,17 @@ function Navbar() {
   const pathName = usePathname();
   const [authOpen, setAuthOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
-  const [menuOpen,setMenuOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const userData = useSelector((state: RootState) => state.user.userData);
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
 
-  async function handleLogOut(){
-    await signOut({redirect:false});
+  async function handleLogOut() {
+    await signOut({callbackUrl: "/" });
     setProfileOpen(false);
     dispatch(setUserData(null));
   }
-
 
   return (
     <>
@@ -36,7 +35,15 @@ function Navbar() {
         className="fixed top-3 left-1/2  -translate-x-1/2 py-3 w-[94%] md:w-[86%] z-50 rounded-full bg-[#0B0B0B] text-white shadow-[0_15px_50px_rgba(0,0,0,0.7)] "
       >
         <div className="max-w-7xl mx-auto px-4 md:px-8 flex items-center justify-between">
-          <Image src={"/logo.png"} alt="logo" width={44} height={44} priority />
+          <Image
+            className="cursor-pointer"
+            src={"/logo.png"}
+            onClick={() => router.push("/")}
+            alt="logo"
+            width={44}
+            height={44}
+            priority
+          />
           <div className=" hidden md:flex gap-8 items-center">
             {Nav_Items.map((i, index) => {
               let href;
@@ -109,7 +116,7 @@ function Navbar() {
                             <div
                               className="w-full flex items-center gap-3 py-3 hover:bg-gray-100 rounded-xl cursor-pointer"
                               onClick={() =>
-                              router.push("/partner/onboarding/vehicle")
+                                router.push("/partner/onboarding/vehicle")
                               }
                             >
                               <div className="flex -space-x-2">
@@ -153,19 +160,16 @@ function Navbar() {
                   Login
                 </button>
               ) : (
-                <div
-                  className="flex items-center gap-2"
-                >
+                <div className="flex items-center gap-2">
                   <button
                     className="w-11 h-11 rounded-full bg-white text-black font-bold"
                     onClick={() => setProfileOpen((p) => !p)}
                   >
                     {userData.name.charAt(0).toUpperCase()}
                   </button>
-                   <div onClick={() => setMenuOpen((prev) => !prev)}>
+                  <div onClick={() => setMenuOpen((prev) => !prev)}>
                     {menuOpen ? <X /> : <Menu />}
-                   </div>
-                  
+                  </div>
                 </div>
               )}
             </div>
@@ -176,7 +180,6 @@ function Navbar() {
       <AnimatePresence>
         {menuOpen && (
           <>
-
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 0.4 }}
