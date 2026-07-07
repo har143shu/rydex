@@ -8,6 +8,7 @@ export interface IUser extends Document {
   role: "user" | "partner" | "admin";
   isUserVerified?: boolean;
   partnerOnBoardingSteps: number;
+  partnerStatus:"pending" | "approved" | "rejected";
   mobileNumber?: string;
   otp?: string;
   otpExpiresAt?: Date;
@@ -44,6 +45,11 @@ const userSchema = new Schema<IUser>(
       min: 0,
       max: 8,
       default: 0,
+    },
+    partnerStatus:{
+      type:String,
+      default:"pending",
+      enum:["pending","approved","rejected"],
     },
     mobileNumber: {
       type: String,
