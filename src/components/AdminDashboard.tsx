@@ -1,12 +1,20 @@
 "use client";
 import axios from "axios";
-import { CheckCircle2, Clock, ShieldCheck, Truck, Users, Video, XCircle } from "lucide-react";
+import {
+  CheckCircle2,
+  Clock,
+  ShieldCheck,
+  Truck,
+  Users,
+  Video,
+  XCircle,
+} from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import Kpi from "./Kpi";
 import TabButton from "./TabButton";
-import {AnimatePresence, motion} from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
 import ContentList from "./ContentList";
 
 type statsType = {
@@ -15,14 +23,14 @@ type statsType = {
   totalPendingPartners: number;
   totalRejectedPartners: number;
 };
-type activeTabType = "partner" | "kyc" | "vehicle"
+type activeTabType = "partner" | "kyc" | "vehicle";
 function AdminDashboard() {
-  const[activeTab,setActiveTab] = useState<activeTabType>("partner");
-  const[stats,setStats] = useState<statsType | null>(null);
+  const [activeTab, setActiveTab] = useState<activeTabType>("partner");
+  const [stats, setStats] = useState<statsType | null>(null);
 
-  const[partnerForReview,setPartnerForReview] = useState<any>();
-  const[partnerForKyc,setPartnerForKyc] = useState<any>();
-  const[partnerForVehicle,setPartnerForVehilce] = useState<any>();
+  const [partnerForReview, setPartnerForReview] = useState<any>();
+  const [partnerForKyc, setPartnerForKyc] = useState<any>();
+  const [partnerForVehicle, setPartnerForVehilce] = useState<any>();
 
   const router = useRouter();
   const handleGetAdminDashboardData = async () => {
@@ -35,10 +43,20 @@ function AdminDashboard() {
     }
   };
 
-  useEffect(() => {
-    const temp = ()=>{
-      handleGetAdminDashboardData();
+  const handleGetPartnerDataForVideoKyc = async () => {
+    try {
+      const { data } = await axios.get("/api/admin/videokyc/pending");
+      setPartnerForKyc(data.partnerForKyc)
+    } catch (error) {
+      console.error(error);
     }
+  };
+
+  useEffect(() => {
+    const temp = () => {
+      handleGetAdminDashboardData();
+      handleGetPartnerDataForVideoKyc();
+    };
     temp();
   }, []);
 
@@ -121,9 +139,8 @@ function AdminDashboard() {
           </TabButton>
         </div>
 
-          <AnimatePresence mode='wait'>
-
-            <motion.div
+        <AnimatePresence mode="wait">
+          <motion.div
             key={activeTab}
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
@@ -131,13 +148,17 @@ function AdminDashboard() {
             transition={{ duration: 0.2, ease: "easeOut" }}
             className="space-y-3"
           >
-            {activeTab=="partner"&& <ContentList data={partnerForReview ?? []} type={"partner"}/>}
-{activeTab=="kyc"&& <ContentList data={partnerForKyc ?? []} type={"kyc"}/>}
-{activeTab=="vehicle"&& <ContentList data={partnerForVehicle ?? []} type={"vehicle"}/>}
+            {activeTab == "partner" && (
+              <ContentList data={partnerForReview ?? []} type={"partner"} />
+            )}
+            {activeTab == "kyc" && (
+              <ContentList data={partnerForKyc ?? []} type={"kyc"} />
+            )}
+            {activeTab == "vehicle" && (
+              <ContentList data={partnerForVehicle ?? []} type={"vehicle"} />
+            )}
           </motion.div>
-
-          </AnimatePresence>
-
+        </AnimatePresence>
       </main>
     </div>
   );

@@ -3,8 +3,12 @@ import { RootState } from "@/redux/store";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { motion } from "motion/react";
-import { Check, Lock } from "lucide-react";
+import { Check, Clock, Lock, Video } from "lucide-react";
 import { useRouter } from "next/navigation";
+import RejectedCard from "./RejectedCard";
+import StatusCard from "./StatusCard";
+import ActionCard from "./ActionCard";
+import axios from "axios";
 
 
 type Step = {
@@ -32,7 +36,19 @@ function PartnerDashboard() {
   const { userData } = useSelector((state: RootState) => state.user);
   const router = useRouter();
   const progressPercentage = ((activeStep - 1) / (TOTAL_STEPS - 1)) * 100;
+   const [loading, setLoading] = useState(false);
 
+    const handleTakeAction = async()=>{
+        setLoading(true);
+        try{
+          await axios.patch("api/partner/videokyc/request");
+          window.location.reload();
+        }catch(error){
+          console.error(error);
+        }finally{
+          setLoading(false);
+        }
+      }
   const handleGoToStep = (step: Step) => {
     if (step.route && step.id <= activeStep) {
       router.push(step.route);
@@ -50,7 +66,6 @@ function PartnerDashboard() {
   return (
     <div className="min-h-screen bg-linear-to-br from-gray-100 to-gray-200 px-4 pt-28 pb-20">
       <div className="max-w-7xl mx-auto space-y-16">
-        
         <div>
           <h1 className="text-4xl font-bold">Partner Onboarding</h1>
           <p className="text-gray-600 mt-3">
@@ -66,9 +81,7 @@ function PartnerDashboard() {
               transition={{ duration: 0.6 }}
               className="absolute top-7 left-0 h-0.75 bg-black rounded-full"
             />
-            <div
-                
-            className="relative flex justify-between">
+            <div className="relative flex justify-between">
               {STEPS.map((step) => {
                 const completed = step.id < activeStep;
                 const active = step.id == activeStep;
@@ -107,6 +120,63 @@ function PartnerDashboard() {
             </div>
           </div>
         </div>
+
+        {userData?.partnerStatus === "rejected" && activeStep === 4 && (
+          <RejectedCard
+            title={"Action Required"}
+            rejectionReason={userData?.rejectionReason}
+            actionTitle={"Review and Update"}
+            onAction={() => router.push("/partner/onboarding/vehicle")}
+          />
+        )}
+
+        {userData?.partnerStatus === "pending" && activeStep === 4 && (
+          <StatusCard
+            icon={<Clock size={18} />}
+            title={"Documents under review"}
+            desc={"Admin is verifying your documents."}
+          />
+        )}
+
+        {activeStep == 5 &&
+          (userData?.videoKycStatus === "approved" ? (
+            <StatusCard
+              icon={<Check size={18} />}
+              title={"video kyc approved"}
+              desc={"You can now proceed to pricing."}
+            />
+          ) : userData?.videoKycStatus === "rejected" ? (
+            <RejectedCard
+              title="Video KYC Rejected"
+              rejectionReason={userData?.videoKycRejectionReason}
+              actionTitle={loading ? "Requesting..." :"Try Again"}
+              onAction = {handleTakeAction}
+            />
+          ) : userData?.videoKycStatus === "in_progress" &&
+            userData?.videoKycRoomId ? (
+            <ActionCard
+              icon={<Video size={18} />}
+              title={"Admin Started Video KYC"}
+              button={"Join Call"}
+              onclick={() =>
+                router.push(`/video-kyc/${userData.videoKycRoomId}`)
+              }
+            />
+          ) : (
+            <StatusCard
+              icon={<Clock size={20} />}
+              title="Waiting for Admin"
+              desc="Admin will initiate Video KYC shortly."
+            />
+          ))}
+
+        {activeStep === 6 && (userData?.videoKycStatus === "approved" ? (
+            <StatusCard
+              icon={<Check size={18} />}
+              title={"video kyc approved"}
+              desc={"You can now proceed to pricing."}
+            />
+          ) :null)}
       </div>
     </div>
   );
