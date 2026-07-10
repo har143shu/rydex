@@ -1,5 +1,12 @@
 import mongoose, { Document, Schema } from "mongoose";
 
+type VideoKycStatus =
+  | "not_required"
+  | "pending"
+  | "in_progress"
+  | "approved"
+  | "rejected";
+
 // 1. TypeScript Interface (Data ka structure define karne ke liye)
 export interface IUser extends Document {
   name: string;
@@ -8,8 +15,13 @@ export interface IUser extends Document {
   role: "user" | "partner" | "admin";
   isUserVerified?: boolean;
   partnerOnBoardingSteps: number;
-  partnerStatus:"pending" | "approved" | "rejected";
+  videoKycStatus: VideoKycStatus;
+  videoKycRoomId?: string;
+  videoKycRejectionReason?: string;
+  partnerStatus: "pending" | "approved" | "rejected";
+  rejectionReason?: string;
   mobileNumber?: string;
+
   otp?: string;
   otpExpiresAt?: Date;
   createdAt: Date;
@@ -46,10 +58,24 @@ const userSchema = new Schema<IUser>(
       max: 8,
       default: 0,
     },
-    partnerStatus:{
-      type:String,
-      default:"pending",
-      enum:["pending","approved","rejected"],
+    videoKycStatus: {
+      type: String,
+      enum: ["not_required", "pending", "in_progress", "approved", "rejected"],
+      default: "not_required",
+    },
+    videoKycRoomId: {
+      type: String,
+    },
+    videoKycRejectionReason: {
+      type: String,
+    },
+    partnerStatus: {
+      type: String,
+      default: "pending",
+      enum: ["pending", "approved", "rejected"],
+    },
+    rejectionReason: {
+      type: String,
     },
     mobileNumber: {
       type: String,

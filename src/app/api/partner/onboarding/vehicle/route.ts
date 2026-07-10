@@ -19,6 +19,7 @@ export async function POST(req: NextRequest) {
     }
 
     const dbUser = await User.findOne({ email: session.user.email });
+
     if (!dbUser) {
       return NextResponse.json({ message: "User not found" }, { status: 404 });
     }
@@ -60,8 +61,14 @@ export async function POST(req: NextRequest) {
       vehicle.number = vehicleNumber;
       vehicle.vehicleModel = vehicleModel;
       vehicle.status = "pending";
-      await vehicle.save();
+      dbUser.partnerStatus="pending";
 
+      if(dbUser.partnerOnBoardingSteps >= 3){
+        dbUser.partnerOnBoardingSteps = 3
+      }
+      await Promise.all(
+         [vehicle.save(),dbUser.save()]
+      )
       return NextResponse.json(
         {
           message: "vehilce details updated successfully",

@@ -61,10 +61,13 @@ export async function POST(req: NextRequest) {
       { upsert: true, new: true },
     );
 
-    if (user.partnerOnBoardingSteps < 2) {
+    if (user.partnerOnBoardingSteps <= 2) {
       user.partnerOnBoardingSteps = 2;
-      await user.save();
+    }else{
+      user.partnerOnBoardingSteps = 3;
     }
+    user.partnerStatus = "pending";
+    await user.save();
 
     return NextResponse.json(
       { message: "documents details updated successfully", data: partnerDocs },
