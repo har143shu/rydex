@@ -8,7 +8,7 @@ export interface IVehicle extends Document {
   vehicleModel: string;
   number: string;
   imageUrl?: string;
-  baseFare?: number;
+  basePrice?: number;
   pricePerKM?: number;
   waitingCharge?: number;
   status: "approved" | "pending" | "rejected";
@@ -40,7 +40,7 @@ const vehicleSchema = new mongoose.Schema<IVehicle>(
       required: true,
     },
     imageUrl: String,
-    baseFare: Number,
+    basePrice: Number,
     pricePerKM: Number,
     waitingCharge: Number,
     status: {

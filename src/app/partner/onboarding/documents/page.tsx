@@ -39,7 +39,8 @@ function Page() {
         formData,
       );
       console.log(data);
-      router.push("/partner/onboarding/bank");
+      // router.push("/partner/onboarding/bank");
+      router.push("/");
     } catch (error: any) {
       setError(
         error?.response?.data?.message ??

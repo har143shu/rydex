@@ -5,7 +5,7 @@ import User from "./models/user.model";
 import bcrypt from "bcryptjs";
 import Google from "next-auth/providers/google";
 
-export const { handlers, signIn, signOut, auth } = NextAuth({
+export const { handlers, signIn, signOut, auth , unstable_update} = NextAuth({
   providers: [
     Credentials({
       credentials: {

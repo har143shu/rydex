@@ -60,6 +60,11 @@ export async function GET(req: NextRequest) {
       };
     });
 
+    const pendingVehicle = await Vehicle.find({
+      status: "pending",
+      basePrice: { $exists: true },
+    }).populate("owner");
+
     return NextResponse.json(
       {
         partnerForReview,
@@ -69,6 +74,7 @@ export async function GET(req: NextRequest) {
           totalRejectedPartners,
           totalPendingPartners,
         },
+        pendingVehicle,
       },
       { status: 200 },
     );
