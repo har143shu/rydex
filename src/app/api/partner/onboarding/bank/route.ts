@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
         { status: 401 },
       );
     }
-    
+
     await connectDB();
 
     const user = await User.findOne({ email: session.user.email });
@@ -135,8 +135,8 @@ export async function POST(req: NextRequest) {
     // Update User
     user.mobileNumber = formattedMobile;
     user.partnerOnBoardingSteps = 3;
-    user.partnerStatus="pending"
-    
+    user.partnerStatus = "pending";
+
     await user.save();
 
     // Success response formatted
@@ -168,7 +168,6 @@ export async function GET() {
     await connectDB();
     const session = await auth();
 
-    // Session aur email dono check karna better hai
     if (!session?.user?.email) {
       return NextResponse.json(
         { message: "User is Unauthenticated" },
@@ -177,25 +176,27 @@ export async function GET() {
     }
 
     const user = await User.findOne({ email: session.user.email });
+
     if (!user) {
       return NextResponse.json({ message: "User not found" }, { status: 404 });
     }
+
     const partnerBank = await PartnerBank.findOne({ owner: user._id });
-    if (!partnerBank) {
-      return NextResponse.json(
-        { message: "Bank Details not found" },
-        { status: 404 },
-      );
-    }
+
     return NextResponse.json(
-      { message: "Bank details fetched", data: partnerBank,mobileNumber:user.mobileNumber },
+      {
+        success: true,
+        data: partnerBank, // null hoga agar pehli baar hai
+        mobileNumber: user.mobileNumber,
+      },
       { status: 200 },
     );
   } catch (error) {
-        console.error("Get Bank Detail Error:", error);
-        return NextResponse.json(
-          { message: "Internal server error while fetching bank details" },
-          { status: 500 },
-        );
+    console.error(error);
+
+    return NextResponse.json(
+      { message: "Internal Server Error" },
+      { status: 500 },
+    );
   }
 }

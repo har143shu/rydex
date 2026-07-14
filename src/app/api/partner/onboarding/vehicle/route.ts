@@ -1,8 +1,9 @@
-import { auth } from "@/auth";
+import { auth, unstable_update } from "@/auth";
 import { connectDB } from "@/lib/db";
 import User from "@/models/user.model";
 import Vehicle from "@/models/vehicle.model";
 import { NextRequest, NextResponse } from "next/server";
+
 
 const VEHICLE_REGEX = /^[A-Z]{2}[0-9]{1,2}[A-Z]{0,2}[0-9]{4}$/;
 
@@ -96,9 +97,14 @@ export async function POST(req: NextRequest) {
       dbUser.partnerOnBoardingSteps = 1;
     }
 
-    dbUser.role = "partner";
-    // dbUser.partnerStatus = "pending";
-    await dbUser.save();
+   dbUser.role = "partner";
+   await dbUser.save();
+
+   await unstable_update({
+     user: {
+       role: "partner",
+     },
+   });
 
     return NextResponse.json(
       {

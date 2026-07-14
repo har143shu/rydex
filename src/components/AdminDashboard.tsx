@@ -3,6 +3,7 @@ import axios from "axios";
 import {
   CheckCircle2,
   Clock,
+  Loader2Icon,
   ShieldCheck,
   Truck,
   Users,
@@ -30,16 +31,23 @@ function AdminDashboard() {
 
   const [partnerForReview, setPartnerForReview] = useState<any>();
   const [partnerForKyc, setPartnerForKyc] = useState<any>();
-  const [partnerForVehicle, setPartnerForVehilce] = useState<any>();
+  const [partnerForVehicle, setPartnerForVehicle] = useState<any>();
+  const [loading ,setLoading] = useState(false);
 
   const router = useRouter();
   const handleGetAdminDashboardData = async () => {
+      setLoading(true);
     try {
       const { data } = await axios.get("/api/admin/dashboard");
+      // console.log(data)
       setStats(data.stats);
       setPartnerForReview(data.partnerForReview);
+      setPartnerForVehicle(data.pendingVehicle);
     } catch (error) {
       console.error(error);
+    }
+    finally{
+      setLoading(false);
     }
   };
 
@@ -59,6 +67,22 @@ function AdminDashboard() {
     };
     temp();
   }, []);
+
+   if (loading) {
+      return (
+        <div
+          className="min-h-screen grid place-items-center bg-gray-50/50"
+          role="status"
+        >
+          <div className="flex flex-col items-center gap-3">
+            <Loader2Icon size={25} className="text-black/70 animate-spin" />
+            <p className="text-sm font-medium text-gray-600 animate-pulse">
+              Loading Admin Dashboard...
+            </p>
+          </div>
+        </div>
+      );
+    }
 
   return (
     <div className="min-h-screen bg-linear-to-br from-gray-100 to-gray-200">

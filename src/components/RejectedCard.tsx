@@ -40,7 +40,9 @@ function RejectedCard({
           {onAction && (
             <div className="pt-2">
               <button
-                onClick={onAction}
+                onClick={()=>{
+                  onAction();
+                }}
                 className="cursor-pointer inline-flex items-center justify-center px-5 py-2 bg-white border border-red-200 text-red-700 rounded-lg text-sm font-medium shadow-2xs hover:bg-red-50 hover:border-red-300 active:scale-[0.98] transition-all duration-150"
               >
                 {actionTitle || "Try again"}

@@ -26,7 +26,9 @@ function Page() {
   const isAccountValid = /^\d{9,18}$/.test(accountNumber.trim());
   const isIfscValid = /^[A-Z]{4}0[A-Z0-9]{6}$/.test(ifsc.trim().toUpperCase());
   const isMobileValid = /^[6-9]\d{9}$/.test(mobileNumber.trim());
-  const isUpiValid = !upi.trim() || /^[a-zA-Z0-9._-]{2,256}@[a-zA-Z]{2,64}$/.test(upi.trim());
+  const isUpiValid =
+    !upi.trim() || /^[a-zA-Z0-9._-]{2,256}@[a-zA-Z]{2,64}$/.test(upi.trim());
+  const router = useRouter();
 
   const canSubmit =
     isNameValid && isAccountValid && isIfscValid && isMobileValid;
@@ -48,7 +50,7 @@ function Page() {
         upi: sanitizedUpi,
         mobileNumber: sanitizedMobile,
       });
-      console.log(data);
+      router.push("/");
     } catch (error: any) {
       setError(
         error?.response?.data?.message ??
@@ -60,25 +62,24 @@ function Page() {
     }
   }
 
-  const router = useRouter();
-
-  useEffect(()=>{
+  useEffect(() => {
     async function handleGetBankDetail() {
-    try {
-      const {data} = await axios.get("/api/partner/onboarding/bank");
-      console.log(data)
-      setAccountHolder(data.data.accountHolder);
-      setAccountNumber(data.data.accountNumber);
-      setIfsc(data.data.ifsc);
-      setUpi(data.data.upi);
-      setMobileNumber(data.mobileNumber);
+      try {
+        const { data } = await axios.get("/api/partner/onboarding/bank");
+        if (data.data) {
+          setAccountHolder(data.data.accountHolder ?? "");
+          setAccountNumber(data.data.accountNumber ?? "");
+          setIfsc(data.data.ifsc ?? "");
+          setUpi(data.data.upi ?? "");
+        }
 
-    } catch (error) {
-      console.error(error);
+        setMobileNumber(data.mobileNumber ?? "");
+      } catch (error) {
+        console.error(error);
+      }
     }
-  }
-  handleGetBankDetail();
-  },[]);
+    handleGetBankDetail();
+  }, []);
 
   return (
     <div className="min-h-screen bg-white flex items-center justify-center px-4">

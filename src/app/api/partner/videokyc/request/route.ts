@@ -6,6 +6,8 @@ import {NextResponse } from "next/server";
 export async function PATCH() {
   try {
     const session = await auth();
+    console.log("SESSION:", session);
+    console.log("ROLE:", session?.user?.role);
 
     // 1. Authentication Check
     if (!session?.user?.email) {

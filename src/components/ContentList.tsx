@@ -48,8 +48,8 @@ function ContentList({ data, type }: any) {
       </div>
 
       {data.map((item: any, index: number) => {
-        const name = item.name;
-        const email = item.email;
+        const name = item.name || item.owner.name;
+        const email = item.email || item.owner.email;
         return (
           <motion.div
             key={index}
@@ -96,7 +96,7 @@ function ContentList({ data, type }: any) {
                   onClick={() => {
                     return type === "partner"
                       ? router.push(`/admin/reviews/partner/${item._id}`)
-                      : "";
+                      : router.push(`/admin/reviews/vehicle/${item._id}`);
                   }}
                 >
                   Review <ArrowRight size={15} />

@@ -39,7 +39,8 @@ function Page() {
         vehicleModel: vehicleModel,
       });
       console.log(data);
-      router.push("/partner/onboarding/documents");
+      // router.push("/partner/onboarding/documents");
+      router.push("/");
     } catch (error: any) {
       setError(
         error?.response?.data?.message ??

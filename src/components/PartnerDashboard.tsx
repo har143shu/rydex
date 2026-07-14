@@ -3,20 +3,20 @@ import { RootState } from "@/redux/store";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { motion } from "motion/react";
-import { Check, Clock, Lock, Video } from "lucide-react";
+import { ArrowRight, Check, Clock, Lock, Video } from "lucide-react";
 import { useRouter } from "next/navigation";
 import RejectedCard from "./RejectedCard";
 import StatusCard from "./StatusCard";
 import ActionCard from "./ActionCard";
 import axios from "axios";
-
+import PricingModel from "./PricingModel";
+import { IVehicle } from "@/models/vehicle.model";
 
 type Step = {
   id: number;
   title: string;
   route?: string;
 };
-
 
 const STEPS: Step[] = [
   { id: 1, title: "Vehicle", route: "/partner/onboarding/vehicle" },
@@ -32,28 +32,59 @@ const TOTAL_STEPS = STEPS.length;
 
 function PartnerDashboard() {
   const [activeStep, setActiveStep] = useState(0);
-
+  const [showPricing, setShowPricing] = useState(false);
   const { userData } = useSelector((state: RootState) => state.user);
   const router = useRouter();
   const progressPercentage = ((activeStep - 1) / (TOTAL_STEPS - 1)) * 100;
-   const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [vehicleData, setVehicleData] = useState<IVehicle | null>(null);
+  
+  const getVehicleData = async()=>{
+     try {
+      const {data} = await axios.get("api/partner/onboarding/pricing");
+      setVehicleData(data);
+      console.log(data);
+    } catch (error) {
+      
+      console.error(error);
+    }
+  }
 
-    const handleTakeAction = async()=>{
-        setLoading(true);
-        try{
-          await axios.patch("api/partner/videokyc/request");
-          window.location.reload();
-        }catch(error){
-          console.error(error);
-        }finally{
-          setLoading(false);
-        }
-      }
+
+  const handleTakeAction = async () => {
+    setLoading(true);
+    try {
+      await axios.patch("api/partner/videokyc/request");
+      window.location.reload();
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
   const handleGoToStep = (step: Step) => {
+    if (
+      step.id == 6 &&
+      userData?.videoKycStatus === "approved" &&
+      userData?.partnerStatus === "approved"
+    ) {
+      setShowPricing(true);
+      return;
+    }
     if (step.route && step.id <= activeStep) {
       router.push(step.route);
     }
   };
+
+  useEffect(() => {
+  if (activeStep >= 6) {
+    const temp = ()=>{
+      getVehicleData();
+    }
+    temp();
+  }
+}, [activeStep]);
+
 
   useEffect(() => {
     if (userData) {
@@ -139,18 +170,12 @@ function PartnerDashboard() {
         )}
 
         {activeStep == 5 &&
-          (userData?.videoKycStatus === "approved" ? (
-            <StatusCard
-              icon={<Check size={18} />}
-              title={"video kyc approved"}
-              desc={"You can now proceed to pricing."}
-            />
-          ) : userData?.videoKycStatus === "rejected" ? (
+          (userData?.videoKycStatus === "rejected" ? (
             <RejectedCard
               title="Video KYC Rejected"
               rejectionReason={userData?.videoKycRejectionReason}
-              actionTitle={loading ? "Requesting..." :"Try Again"}
-              onAction = {handleTakeAction}
+              actionTitle={loading ? "Requesting..." : "Try Again"}
+              onAction={handleTakeAction}
             />
           ) : userData?.videoKycStatus === "in_progress" &&
             userData?.videoKycRoomId ? (
@@ -170,14 +195,46 @@ function PartnerDashboard() {
             />
           ))}
 
-        {activeStep === 6 && (userData?.videoKycStatus === "approved" ? (
+        {activeStep === 6 &&
+          (userData?.videoKycStatus === "approved" ? (
             <StatusCard
               icon={<Check size={18} />}
               title={"video kyc approved"}
               desc={"You can now proceed to pricing."}
             />
-          ) :null)}
+          ) : null)}
+
+        {activeStep == 7 && vehicleData?.status == "pending" && (
+          <StatusCard
+            icon={<Clock size={20} />}
+            title="Pricing Under Review"
+            desc="Admin is reviewing your pricing."
+          />
+        )}
+        {activeStep == 7 && vehicleData?.status == "rejected" && (
+          <RejectedCard
+            title="Pricing Rejected"
+            rejectionReason={vehicleData?.rejectionReason}
+            actionTitle="Edit & Resubmit"
+            onAction={() => setShowPricing(true)}
+          />
+        )}
+        {activeStep == 8 && vehicleData?.status == "approved" && (
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-black text-white rounded-3xl p-10 shadow-2xl"
+          >
+            <h2 className="text-2xl font-bold">🚀 You are Live</h2>
+
+            <button  className="mt-6 cursor-pointer bg-white text-black px-6 py-3 rounded-xl font-semibold flex items-center gap-2">
+              Go to Bookings <ArrowRight size={16} />
+            </button>
+          </motion.div>
+        )}
       </div>
+
+      <PricingModel open={showPricing} onClose={() => setShowPricing(false)} />
     </div>
   );
 }

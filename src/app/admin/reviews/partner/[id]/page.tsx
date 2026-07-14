@@ -52,6 +52,17 @@ function ReviewPage() {
     }
   }
 
+const handleBack = () => {
+    if (
+      document.referrer &&
+      document.referrer.startsWith(window.location.origin)
+    ) {
+      router.back();
+    } else {
+      router.push("/");
+    }
+  };
+
 async function handleReject(){
     console.log(rejectionReason);
     const senitizedMsg = rejectionReason.trim();
@@ -120,7 +131,7 @@ async function handleReject(){
         <div className="max-w-7xl mx-auto px-4 h-16 flex items-center gap-4">
           <button
             className="w-10 h-10 rounded-full border flex items-center justify-center hover:bg-gray-100 transition cursor-pointer"
-            onClick={() => router.back()}
+            onClick={handleBack}
           >
             <ArrowLeft size={18} />
           </button>
