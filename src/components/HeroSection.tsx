@@ -51,7 +51,7 @@ function HeroSection({ onBookAuthOpen }: { onBookAuthOpen: () => void }) {
           onClick={() =>
             !userData ? onBookAuthOpen() : router.push("/user/book")
           }
-          className="mt-12 px-10 py-4 bg-white text-black rounded-full font-semibold shadow-xl"
+          className="mt-12 px-10 py-4 bg-white text-black rounded-full font-semibold shadow-xl cursor-pointer"
         >
           Book Now
         </motion.button>
