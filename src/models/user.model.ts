@@ -21,7 +21,12 @@ export interface IUser extends Document {
   partnerStatus: "pending" | "approved" | "rejected";
   rejectionReason?: string;
   mobileNumber?: string;
-
+  socketId:string | null;
+  location?:{
+      type:"Point",
+      coordinates:[number,number]
+  };
+  isOnline:boolean;
   otp?: string;
   otpExpiresAt?: Date;
   createdAt: Date;
@@ -80,6 +85,22 @@ const userSchema = new Schema<IUser>(
     mobileNumber: {
       type: String,
     },
+    socketId: {
+      type: String,
+      default: null,
+    },
+    location: {
+      type: {
+        type: String,
+        enum: ["Point"],
+      },
+      coordinates: [Number],
+    },
+    isOnline: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
     otp: {
       type: String,
     },
@@ -90,6 +111,7 @@ const userSchema = new Schema<IUser>(
   { timestamps: true },
 );
 
+userSchema.index({ location: "2dsphere" });
 // 3. Next.js Specific Check (Jo sabse zaroori hai!)
 const User = mongoose.models.User || mongoose.model<IUser>("User", userSchema);
 

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import "leaflet/dist/leaflet.css"
 import Provider from "@/lib/Provider";
 import ReactRedux from "@/redux/ReactRedux";
 import InitUser from "@/InitUser";
