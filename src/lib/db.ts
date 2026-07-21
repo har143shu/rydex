@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const mongoDB_Url = process.env.MONGOBD_URL;
+const mongoDB_Url = process.env.MONGODB_URL;
 
 if (!mongoDB_Url) {
   throw new Error("MongoDB URL not found!!");

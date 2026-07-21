@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import AdminDashboard from "@/components/AdminDashboard";
 import Footer from "@/components/Footer";
+import GeoUpdator from "@/components/GeoUpdator";
 import Navbar from "@/components/Navbar";
 import PartnerDashboard from "@/components/PartnerDashboard";
 import PublicHome from "@/components/PublicHome";
@@ -16,6 +17,8 @@ export default async function Home() {
   }
   return (
     <div className="w-full min-h-screen bg-white">
+      {/* me chahta hu ki iss headless component se jab bhi user iss page ko access kare toh wo ek event call kare socket ke webSocket ko jisse me iski socketId ya location store kra pau*/}
+      {user && <GeoUpdator userId={user._id.toString()} />}
       {user?.role === "partner" ? (
         <>
           <Navbar />
