@@ -95,7 +95,7 @@ function Page() {
     try {
       const { latitude, longitude} = await getUserLocation();
       setPickupLat(latitude);
-      setPickupLon(latitude);
+      setPickupLon(longitude);
       const { data } = await axios.get(
         `https://photon.komoot.io/reverse?lon=${longitude}&lat=${latitude}`,
       );
