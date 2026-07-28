@@ -143,7 +143,15 @@ function Searchmap({
   ): Promise<[number, number] | null> => {
     try {
       const { data } = await axios.get(
-        `https://photon.komoot.io/api/?q=${encodeURIComponent(address)}&limit=1`,
+        "https://api.geoapify.com/v1/geocode/autocomplete",
+        {
+          params: {
+            text: address.trim(),
+            apiKey: process.env.NEXT_PUBLIC_GEOAPIFY_API_KEY,
+            filter: "countrycode:in",
+            limit: 1,
+          },
+        },
       );
 
       if (data.features.length === 0) {
@@ -160,20 +168,50 @@ function Searchmap({
   };
 
   const reverseCoding = async (lat: number, lon: number) => {
-    const { data } = await axios.get(
-      `https://photon.komoot.io/reverse?lon=${lon}&lat=${lat}`,
-    );
+     const { data } = await axios.get(
+       "https://api.geoapify.com/v1/geocode/reverse",
+       {
+         params: {
+           lat,
+           lon,
+           apiKey: process.env.NEXT_PUBLIC_GEOAPIFY_API_KEY,
+           filter: "countrycode:in",
+         },
+       },
+     );
+
 
     if (!data.features.length) return;
-    // 1. Clean Destructuring
-    const { name, street, city, state, postcode, country } =
-      data.features[0].properties;
+   const props = data.features[0].properties;
+   const {
+     name,
+     housenumber,
+     street,
+     suburb,
+     district,
+     city,
+     state,
+     postcode,
+     country,
+   } = props;
 
-    // 2. Array banao aur falsy values hatao
-    const rawParts = [name, street, city, state, postcode, country].filter(
-      Boolean,
-    );
-    const uniqueAddress = [...new Set(rawParts)].join(", ");
+   // Agar housenumber nahi hai, toh ye automatically sirf street dega
+   const streetInfo = [housenumber, street].filter(Boolean).join(" ");
+
+   // 1. Array banao aur falsy values (null/undefined/empty) hatao
+   const rawParts = [
+     name,
+     streetInfo, // Yahan || street ki zaroorat nahi
+     suburb,
+     district,
+     city,
+     state,
+     postcode,
+     country,
+   ].filter(Boolean);
+
+   // 2. Duplicates hatao aur comma se join karo
+   const uniqueAddress = [...new Set(rawParts)].join(", ");
     return uniqueAddress;
   };
 

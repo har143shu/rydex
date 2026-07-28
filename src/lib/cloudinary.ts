@@ -5,7 +5,6 @@ cloudinary.config({
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
-// TEST KE LIYE YE ADD KAR:
 console.log("Cloud Name:", process.env.CLOUDINARY_CLOUD_NAME);
 console.log("API Key:", process.env.CLOUDINARY_API_KEY ? "Loaded (Valid)" : "MISSING ❌");
 console.log("API Secret:", process.env.CLOUDINARY_API_SECRET ? "Loaded (Valid)" : "MISSING ❌");  
