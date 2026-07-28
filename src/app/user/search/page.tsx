@@ -275,8 +275,8 @@ function Page() {
                 <VehicleCard vehicle={v} distance={km}
                   onBook={()=>{
                     const url = new URLSearchParams({
-                      pickupLocation,
-                      dropLocation,
+                      pickUp:pickupLocation,
+                      drop:dropLocation,
                       vehicle: v.type,
                       driverId: v.owner,
                       vehicleId: String(v._id),

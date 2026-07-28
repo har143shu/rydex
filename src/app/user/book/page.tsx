@@ -93,28 +93,59 @@ function Page() {
   const fetchUserLocation = async () => {
     setLocateLoading(true);
     try {
-      const { latitude, longitude} = await getUserLocation();
+      const { latitude, longitude } = await getUserLocation();
       setPickupLat(latitude);
       setPickupLon(longitude);
+
+      // Reverse geocoding call
       const { data } = await axios.get(
-        `https://photon.komoot.io/reverse?lon=${longitude}&lat=${latitude}`,
+        "https://api.geoapify.com/v1/geocode/reverse",
+        {
+          params: {
+            lat: latitude,
+            lon: longitude,
+            apiKey: process.env.NEXT_PUBLIC_GEOAPIFY_API_KEY,
+            filter: "countrycode:in",
+          },
+        },
       );
 
-      if (data.features.length) {
-        // 1. Clean Destructuring
-        const { name, street, city, state, postcode, country } =
-          data.features[0].properties;
+      // Optional chaining (data?.features?.) se error safety badh jaati hai
+      if (data?.features?.length) {
+        const props = data.features[0].properties;
+        const {
+          name,
+          housenumber,
+          street,
+          suburb,
+          district,
+          city,
+          state,
+          postcode,
+          country,
+        } = props;
 
-        // 2. Array banao aur falsy values hatao
-        const rawParts = [name, street, city, state, postcode, country].filter(
-          Boolean,
-        );
+        // Agar housenumber nahi hai, toh ye automatically sirf street dega
+        const streetInfo = [housenumber, street].filter(Boolean).join(" ");
+
+        // 1. Array banao aur falsy values (null/undefined/empty) hatao
+        const rawParts = [
+          name,
+          streetInfo, // Yahan || street ki zaroorat nahi
+          suburb,
+          district,
+          city,
+          state,
+          postcode,
+          country,
+        ].filter(Boolean);
+
+        // 2. Duplicates hatao aur comma se join karo
         const uniqueAddress = [...new Set(rawParts)].join(", ");
-        setPickupLocation(uniqueAddress);
-        setPickupCountry(country);
-      }
 
-      //   console.log("Reverse Geocoding Data:", data);
+        setPickupLocation(uniqueAddress);
+        setPickupCountry(country || "India"); // Fallback safety
+      }
     } catch (error) {
       // Type narrowing approach taaki ESLint warning na de
       if (error instanceof Error) {
@@ -130,17 +161,23 @@ function Page() {
   const searchAddress = async (
     q: string,
     setSearch: (r: Place[]) => void,
-    allowedCountry?:string | null // ye variable sirf drop location ke liye h 
+    allowedCountry?: string | null, // ye variable sirf drop location ke liye h
   ) => {
     if (!q || q.trim().length < 3) {
       return;
     }
     try {
       const { data } = await axios.get(
-        `https://photon.komoot.io/api/?q=${encodeURIComponent(q)}&limit=10&lang=en`,
+        "https://api.geoapify.com/v1/geocode/autocomplete",
+        {
+          params: {
+            text: q.trim(),
+            apiKey: process.env.NEXT_PUBLIC_GEOAPIFY_API_KEY,
+            filter: "countrycode:in", 
+            limit: 6,
+          },
+        },
       );
-      console.log(data);
-
       let rawSearchSuggestionList: Place[] = (data.features ?? []).map(
         (f: any) => {
           return {
@@ -155,7 +192,10 @@ function Page() {
           };
         },
       );
-      if(allowedCountry) rawSearchSuggestionList = rawSearchSuggestionList.filter((place)=>(place.country === allowedCountry));
+      if (allowedCountry)
+        rawSearchSuggestionList = rawSearchSuggestionList.filter(
+          (place) => place.country === allowedCountry,
+        );
       setSearch(rawSearchSuggestionList);
     } catch (error) {
       setSearch([]);
@@ -177,12 +217,21 @@ function Page() {
     !!dropLocation,
   ].filter(Boolean).length;
 
-  const canContinue = !!(vehicle && mobileNumber && pickupLocation && dropLocation && pickupLat && pickupLon && dropLat && dropLon && pickupCountry && dropCountry);
+  const canContinue = !!(
+    vehicle &&
+    mobileNumber &&
+    pickupLocation &&
+    dropLocation &&
+    pickupLat &&
+    pickupLon &&
+    dropLat &&
+    dropLon &&
+    pickupCountry &&
+    dropCountry
+  );
 
   const router = useRouter();
 
-
-  
   return (
     <div
       onClick={() => {
@@ -234,7 +283,6 @@ function Page() {
           <div className="h-1 bg-zinc-900 w-[90%] m-auto rounded-sm" />
 
           <div className="p-6 space-y-7">
-
             <motion.div
               variants={stepVariants}
               initial={"hidden"}
@@ -538,7 +586,6 @@ function Page() {
                 <span>Continue</span>
               </motion.button>
             </motion.div>
-            
           </div>
         </div>
       </motion.div>

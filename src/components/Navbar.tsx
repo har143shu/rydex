@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
@@ -10,22 +10,39 @@ import { AppDispatch, RootState } from "@/redux/store";
 import { Bike, Car, ChevronRight, LogOut, Menu, Truck, X } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { setUserData } from "@/redux/userSlice";
+import axios from "axios";
 function Navbar() {
   const Nav_Items = ["Home", "Bookings", "About Us", "Contact"];
   const pathName = usePathname();
   const [authOpen, setAuthOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const[pendingCount,setPendingCount] = useState(0);
 
   const userData = useSelector((state: RootState) => state.user.userData);
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
 
   async function handleLogOut() {
-    await signOut({callbackUrl: "/" });
+    await signOut({ callbackUrl: "/" });
     setProfileOpen(false);
     dispatch(setUserData(null));
   }
+
+  const fetchingCount = async()=>{
+    try{
+      const {data} = await axios.get("/api/partner/pending-request-count");
+      setPendingCount(data);
+    }catch(error:any){
+      console.log(error?.response?.data?.message);
+    }
+  }
+
+  useEffect(()=>{
+    (()=>fetchingCount())()
+  },[
+    userData
+  ])
 
   return (
     <>
@@ -45,28 +62,59 @@ function Navbar() {
             priority
           />
           <div className=" hidden md:flex gap-8 items-center">
-            {Nav_Items.map((i, index) => {
-              let href;
-
-              if (i == "Home") {
-                href = "/";
-              } else {
-                href = `/${i.toLowerCase().replace(/\s+/g, "-")}`;
-              }
-              const active = href == pathName;
-
-              return (
+            {userData?.role === "partner" ? (
+              <>
                 <Link
-                  key={index}
-                  href={href}
-                  className={`text-sm font-medium transition ${
-                    active ? "text-white" : "text-gray-400 hover:text-white"
-                  }`}
+                  className="relative text-sm font-medium text-gray-300 hover:text-white transition"
+                  href={"/"}
                 >
-                  {i}
+                  Home
                 </Link>
-              );
-            })}
+                <Link
+                  className="relative text-sm font-medium text-gray-300 hover:text-white transition"
+                  href={"/partner/pending-request"}
+                >
+                  Pending Requests
+                  <span className="absolute -top-2 -right-4 w-5 h-5 bg-white text-black text-xs rounded-full flex items-center justify-center font-bold">
+                    {pendingCount ?? 0}
+                  </span>
+                </Link>
+                <Link
+                  className="relative text-sm font-medium text-gray-300 hover:text-white transition"
+                  href={"/partner/bookings"}
+                >
+                  Bookings
+                </Link>
+                <Link
+                  className="relative text-sm font-medium text-gray-300 hover:text-white transition"
+                  href={"/partner/active-ride"}
+                >
+                  Active Ride
+                </Link>
+              </>
+            ) : (
+              Nav_Items.map((i, index) => {
+                let href;
+                if (i == "Home") {
+                  href = "/";
+                } else {
+                  href = `/${i.toLowerCase().replace(/\s+/g, "-")}`;
+                }
+                const active = href == pathName;
+
+                return (
+                  <Link
+                    key={index}
+                    href={href}
+                    className={`text-sm font-medium transition ${
+                      active ? "text-white" : "text-gray-400 hover:text-white"
+                    }`}
+                  >
+                    {i}
+                  </Link>
+                );
+              })
+            )}
           </div>
 
           <div className="flex items-center gap-3 relative">
